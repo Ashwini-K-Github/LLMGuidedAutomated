@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cocoon | LLM-Guided Automated Data Cleaning Framework</title>
+    <!-- Google Fonts: Inter and Fira Code for code blocks -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for beautiful icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css?v=1.3">
+</head>
+<body>
+    <div class="glow-bg"></div>
+
+    <header class="main-header">
+        <div class="header-logo">
+            <i class="fa-solid fa-wand-magic-sparkles logo-icon"></i>
+            <h1>Cocoon <span class="subtitle">Data Cleaning Framework</span></h1>
+        </div>
+        <div class="step-indicator">
+            <div class="step-node active" id="step-node-1" data-step="1">
+                <span class="node-num">1</span>
+                <span class="node-text">Upload</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-node" id="step-node-2" data-step="2">
+                <span class="node-num">2</span>
+                <span class="node-text">Profile</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-node" id="step-node-3" data-step="3">
+                <span class="node-num">3</span>
+                <span class="node-text">Analyze</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-node" id="step-node-4" data-step="4">
+                <span class="node-num">4</span>
+                <span class="node-text">Clean</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step-node" id="step-node-5" data-step="5">
+                <span class="node-num">5</span>
+                <span class="node-text">Export</span>
+            </div>
+        </div>
+        <div class="theme-switch-wrapper">
+            <i class="fa-solid fa-moon theme-icon-dark"></i>
+            <label class="theme-switch">
+                <input type="checkbox" id="theme-toggle-checkbox">
+                <span class="slider-round"></span>
+            </label>
+            <i class="fa-solid fa-sun theme-icon-light"></i>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Sidebar for LLM API Settings -->
+        <aside class="settings-sidebar glass-panel">
+            <h2 class="sidebar-title"><i class="fa-solid fa-gears"></i> Engine Settings</h2>
+            
+            <div class="setting-group">
+                <label for="provider-select">LLM Provider</label>
+                <div class="select-wrapper">
+                    <select id="provider-select">
+                        <option value="Mock (Default)">Mock (Default)</option>
+                        <option value="OpenAI">OpenAI (GPT-4o)</option>
+                        <option value="Anthropic">Anthropic (Claude 3.5)</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down select-arrow"></i>
+                </div>
+            </div>
+
+            <div class="setting-group" id="api-key-group" style="display: none;">
+                <label for="api-key-input">API Key</label>
+                <div class="input-wrapper">
+                    <input type="password" id="api-key-input" placeholder="Enter API Key...">
+                    <i class="fa-solid fa-key input-icon"></i>
+                </div>
+                <small class="help-text">Your key remains local in your browser and is never stored on a server.</small>
+            </div>
+
+            <div class="connection-status" id="connection-status">
+                <span class="status-indicator success pulsing"></span>
+                <span class="status-text">Engine Ready: Mock Mode</span>
+            </div>
+            
+            <div class="info-card">
+                <h3><i class="fa-solid fa-lightbulb"></i> Cocoon Insight</h3>
+                <p>Cocoon statistically profiles columns, detects statistical anomalies, and leverages LLMs for context-aware semantic standardizations.</p>
+            </div>
+        </aside>
+
+        <!-- Dynamic Content Area -->
+        <section class="content-area">
+            
+            <!-- STEP 1: UPLOAD SCREEN -->
+            <div class="step-view active" id="step-view-1">
+                <div class="glass-panel text-center hero-card">
+                    <h2 class="hero-title">Intelligent LLM-Guided Semantic Data Cleaning</h2>
+                    <p class="hero-subtitle">Upload your CSV or Excel dataset to automatically profile structure, detect anomalies, and apply semantic intelligence.</p>
+                    
+                    <div class="upload-dropzone" id="upload-zone">
+                        <input type="file" id="file-input" accept=".csv,.tsv,.xlsx,.xls,.ods" class="file-hidden">
+                        <div class="dropzone-content">
+                            <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                            <h3>Drag & drop dataset here</h3>
+                            <p>or <span class="browse-link">browse files</span> from your computer</p>
+                            <span class="file-limits">Supports CSV, TSV, XLSX, XLS, ODS up to 50MB</span>
+                        </div>
+                    </div>
+
+                    <div class="upload-error-banner" id="upload-error" style="display:none;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <div>
+                            <strong>Upload failed</strong>
+                            <p id="upload-error-message"></p>
+                            <p class="upload-error-hint" id="upload-error-hint"></p>
+                        </div>
+                    </div>
+
+                    <!-- Test Datasets Sandbox -->
+                    <div class="test-datasets">
+                        <p class="test-title">Quick Demo: Load a sample dataset with inconsistencies</p>
+                        <div class="test-btn-group" style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
+                            <button class="btn btn-secondary test-data-btn" data-type="students">
+                                <i class="fa-solid fa-graduation-cap"></i> Student Profile
+                            </button>
+                            <button class="btn btn-secondary test-data-btn" data-type="employee">
+                                <i class="fa-solid fa-briefcase"></i> Employee HR
+                            </button>
+                            <button class="btn btn-secondary test-data-btn" data-type="ecommerce">
+                                <i class="fa-solid fa-cart-shopping"></i> E-commerce
+                            </button>
+                            <button class="btn btn-secondary test-data-btn" data-type="healthcare">
+                                <i class="fa-solid fa-heart-pulse"></i> Healthcare
+                            </button>
+                            <button class="btn btn-secondary test-data-btn" data-type="banking">
+                                <i class="fa-solid fa-wallet"></i> Banking KYC
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 2: PROFILE SCREEN -->
+            <div class="step-view" id="step-view-2">
+                <!-- Executive Dataset Profile Header Dashboard -->
+                <div class="executive-profile-header">
+                    <!-- File Metadata Panel -->
+                    <div class="glass-panel profile-meta-card">
+                        <h3 class="panel-heading"><i class="fa-solid fa-circle-info"></i> Dataset Information</h3>
+                        <div class="meta-info-grid">
+                            <div class="meta-item">
+                                <span class="meta-label">Dataset Name</span>
+                                <span class="meta-val" id="meta-filename">dataset.csv</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">File Size</span>
+                                <span class="meta-val" id="meta-filesize">0 KB</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Total Rows</span>
+                                <span class="meta-val" id="meta-rows">0</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Total Columns</span>
+                                <span class="meta-val" id="meta-cols">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Dataset Quality Gauge -->
+                    <div class="glass-panel profile-score-card">
+                        <h3 class="panel-heading"><i class="fa-solid fa-gauge-simple-high"></i> Initial Dataset Health</h3>
+                        <div class="score-container">
+                            <div class="score-ring">
+                                <svg class="ring-svg">
+                                    <circle class="ring-bg" cx="45" cy="45" r="38"></circle>
+                                    <circle class="ring-bar" id="score-ring-bar-before" cx="45" cy="45" r="38" style="stroke-dashoffset: 238.76;"></circle>
+                                </svg>
+                                <span class="score-text" id="score-text-before">0%</span>
+                            </div>
+                            <div class="score-details">
+                                <span class="score-label label-needs-cleaning" id="score-label-before">Needs Cleaning</span>
+                                <span class="score-sub">Based on missing cells, outliers, casing, and duplicate anomalies</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary KPI Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card glass-panel">
+                        <div class="kpi-icon-wrapper blue"><i class="fa-solid fa-table"></i></div>
+                        <div class="kpi-info">
+                            <span class="kpi-label">Dimensions</span>
+                            <span class="kpi-val" id="profile-shape">0 Rows x 0 Cols</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card glass-panel">
+                        <div class="kpi-icon-wrapper orange"><i class="fa-solid fa-circle-exclamation"></i></div>
+                        <div class="kpi-info">
+                            <span class="kpi-label">Statistical Anomalies</span>
+                            <span class="kpi-val" id="profile-anomalies">0 Detected</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card glass-panel">
+                        <div class="kpi-icon-wrapper red"><i class="fa-solid fa-clone"></i></div>
+                        <div class="kpi-info">
+                            <span class="kpi-label">Duplicate Rows</span>
+                            <span class="kpi-val" id="profile-duplicates">0 Rows</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card glass-panel">
+                        <div class="kpi-icon-wrapper green"><i class="fa-solid fa-microchip"></i></div>
+                        <div class="kpi-info">
+                            <span class="kpi-label">Memory Footprint</span>
+                            <span class="kpi-val" id="profile-memory">0 KB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quality Issues Detailed Table -->
+                <div class="glass-panel table-panel">
+                    <h3 class="panel-heading"><i class="fa-solid fa-list-check"></i> Pre-Cleaning Anomaly Profiling</h3>
+                    <div class="table-scroll-container">
+                        <table class="data-table" id="quality-issues-table">
+                            <thead>
+                                <tr>
+                                    <th>Column Name</th>
+                                    <th>Data Type</th>
+                                    <th>Missing Records</th>
+                                    <th>Missing %</th>
+                                    <th>Outliers Count</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="quality-issues-body">
+                                <tr><td colspan="6" class="text-center">No uploaded data</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Preview Table Card -->
+                <div class="glass-panel table-panel">
+                    <h3 class="panel-heading"><i class="fa-solid fa-table-list"></i> Raw Data Preview (First 10 Rows)</h3>
+                    <div class="table-scroll-container">
+                        <table class="data-table" id="raw-preview-table">
+                            <thead>
+                                <tr><th>No uploaded data</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Please upload a dataset first.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Columns Metadata Table -->
+                <div class="glass-panel table-panel">
+                    <h3 class="panel-heading"><i class="fa-solid fa-columns"></i> Column Statistical Profiling</h3>
+                    <div class="table-scroll-container">
+                        <table class="data-table" id="columns-profile-table">
+                            <thead>
+                                <tr>
+                                    <th>Column Name</th>
+                                    <th>Data Type</th>
+                                    <th>Missing Records</th>
+                                    <th>Unique Values</th>
+                                    <th>Unique Sample Values</th>
+                                </tr>
+                            </thead>
+                            <tbody id="columns-profile-body">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="btn-action-container">
+                    <button class="btn btn-primary" id="btn-goto-analyze">
+                        Proceed to Semantic Analysis <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3: ANALYZE & RECOMMENDATIONS SCREEN -->
+            <div class="step-view" id="step-view-3">
+                <div class="glass-panel analysis-running-card text-center" id="analysis-loading" style="display: none;">
+                    <div class="spinner-container">
+                        <div class="double-bounce1"></div>
+                        <div class="double-bounce2"></div>
+                    </div>
+                    <h2 class="loading-title">Analyzing Dataset Semantics...</h2>
+                    <p class="loading-subtitle">Cocoon is combining statistical summaries with LLM context checks to identify typos, casing errors, pattern mismatches, and disguised nulls.</p>
+                </div>
+
+                <div id="analysis-results" style="display: none;">
+                    <div class="glass-panel summary-banner">
+                        <div class="banner-icon"><i class="fa-solid fa-brain"></i></div>
+                        <div class="banner-text">
+                            <h3>LLM Semantic Analysis Summary</h3>
+                            <p id="analysis-summary-text">...</p>
+                            <div class="estimated-summary-badge-group" id="estimated-changes-counts">
+                                <!-- Populated dynamically by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Collapsible Prompt & Response Inspector -->
+                    <div class="glass-panel collapsible-panel" id="llm-inspector-panel">
+                        <div class="panel-header" id="btn-toggle-llm-inspector">
+                            <h3 class="panel-heading-inner"><i class="fa-solid fa-code"></i> LLM Prompts &amp; Response Details</h3>
+                            <i class="fa-solid fa-chevron-down toggle-icon"></i>
+                        </div>
+                        <div class="panel-body" id="llm-inspector-body" style="display: none;">
+                            <div class="inspector-section">
+                                <h4>System Prompt Sent to LLM</h4>
+                                <pre><code class="prompt-code" id="inspector-system-prompt">Loading prompt context...</code></pre>
+                            </div>
+                            <div class="inspector-section">
+                                <h4>User Prompt Sent to LLM</h4>
+                                <pre><code class="prompt-code" id="inspector-user-prompt">Loading user statistics...</code></pre>
+                            </div>
+                            <div class="inspector-section">
+                                <h4>Raw JSON Response Received</h4>
+                                <pre><code class="response-code" id="inspector-raw-response">Loading raw model response...</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel table-panel">
+                        <div class="panel-header-actions">
+                            <h3 class="panel-heading"><i class="fa-solid fa-clipboard-check"></i> Recommended Cleaning Operations</h3>
+                            <button class="btn btn-mini btn-secondary" id="btn-toggle-all-checks">Deselect All</button>
+                        </div>
+                        
+                        <div class="recommendations-container" id="recommendations-list">
+                            <!-- Populated dynamically with checklist items -->
+                        </div>
+                    </div>
+
+                    <div class="btn-action-container">
+                        <button class="btn btn-secondary" id="btn-back-to-profile"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                        <button class="btn btn-primary" id="btn-apply-cleaning">
+                            Execute Intelligent Cleaning <i class="fa-solid fa-gears"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 4: CLEANING CONSOLE SCREEN -->
+            <div class="step-view" id="step-view-4">
+                <!-- Processing Dashboard -->
+                <div class="processing-dashboard-grid">
+                    <!-- Progress Card -->
+                    <div class="glass-panel progress-card">
+                        <div class="progress-details">
+                            <span class="progress-label">Engine Cleaning Progress</span>
+                            <span class="progress-percentage" id="cleaning-progress-pct">0%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="cleaning-progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Stats Card -->
+                    <div class="glass-panel progress-metrics-card">
+                        <div class="metric-item">
+                            <span class="metric-lbl">Execution Time</span>
+                            <span class="metric-value" id="cleaning-exec-time">0.0s</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-lbl">Operations Applied</span>
+                            <span class="metric-value" id="cleaning-ops-count">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel console-panel">
+                    <div class="console-header">
+                        <div class="console-dots">
+                            <span class="dot red-dot"></span>
+                            <span class="dot yellow-dot"></span>
+                            <span class="dot green-dot"></span>
+                        </div>
+                        <div class="console-title">pandas_cleaning_engine.py - Console (<span id="console-executed-ops">0 Operations Executed</span>)</div>
+                        <div class="console-actions">
+                            <i class="fa-solid fa-copy copy-btn" title="Copy Trail"></i>
+                        </div>
+                    </div>
+                    <div class="console-body" id="console-output">
+                        <!-- Code execution trails printed here -->
+                    </div>
+                </div>
+
+                <div class="glass-panel table-panel" id="cleaned-preview-panel" style="display: none;">
+                    <h3 class="panel-heading"><i class="fa-solid fa-square-check"></i> Cleaned Data Preview</h3>
+                    <div class="table-scroll-container">
+                        <table class="data-table" id="cleaned-preview-table">
+                            <thead>
+                                <tr><th>No cleaned data</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Cleaning process has not run.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- Operations Success Summary -->
+                <div class="glass-panel success-summary-panel" id="cleaning-success-summary" style="display: none;">
+                    <h3 class="panel-heading"><i class="fa-solid fa-square-check"></i> Cleaning Action Success Log</h3>
+                    <ul class="success-audit-list" id="cleaning-success-audit-list">
+                        <!-- Populated dynamically by JS -->
+                    </ul>
+                </div>
+                <div class="btn-action-container" id="console-nav-actions" style="display: none;">
+                    <button class="btn btn-primary" id="btn-goto-validation">
+                        Validate Cleaned Dataset <i class="fa-solid fa-shield-halved"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 5: EXPORT & VALIDATION SCREEN -->
+            <div class="step-view" id="step-view-5">
+                <!-- Validation Comparison Grid -->
+                <div class="validation-summary glass-panel">
+                    <h2 class="audit-heading"><i class="fa-solid fa-clipboard-check"></i> Data Quality Audit (Before vs After)</h2>
+                    <div class="audit-grid">
+                        <div class="audit-metric-card">
+                            <span class="audit-metric-label">Missing Values</span>
+                            <div class="audit-bar-wrapper">
+                                <span class="audit-val before" id="audit-missing-before">0</span>
+                                <i class="fa-solid fa-arrow-right-long audit-arrow"></i>
+                                <span class="audit-val after" id="audit-missing-after">0</span>
+                            </div>
+                            <span class="audit-badge green-badge" id="audit-missing-diff">0 Resolved</span>
+                        </div>
+                        
+                        <div class="audit-metric-card">
+                            <span class="audit-metric-label">Numerical Outliers</span>
+                            <div class="audit-bar-wrapper">
+                                <span class="audit-val before" id="audit-outliers-before">0</span>
+                                <i class="fa-solid fa-arrow-right-long audit-arrow"></i>
+                                <span class="audit-val after" id="audit-outliers-after">0</span>
+                            </div>
+                            <span class="audit-badge green-badge" id="audit-outliers-diff">0 Resolved</span>
+                        </div>
+
+                        <div class="audit-metric-card">
+                            <span class="audit-metric-label">Duplicate Rows</span>
+                            <div class="audit-bar-wrapper">
+                                <span class="audit-val before" id="audit-dup-before">0</span>
+                                <i class="fa-solid fa-arrow-right-long audit-arrow"></i>
+                                <span class="audit-val after" id="audit-dup-after">0</span>
+                            </div>
+                            <span class="audit-badge green-badge" id="audit-dup-diff">0 Resolved</span>
+                        </div>
+                        
+                        <div class="audit-metric-card">
+                            <span class="audit-metric-label">Row Dimensions</span>
+                            <div class="audit-bar-wrapper">
+                                <span class="audit-val before" id="audit-rows-before">0</span>
+                                <i class="fa-solid fa-arrow-right-long audit-arrow"></i>
+                                <span class="audit-val after" id="audit-rows-after">0</span>
+                            </div>
+                            <span class="audit-badge blue-badge" id="audit-rows-diff">No Change</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Data Quality Audit Table -->
+                <div class="glass-panel table-panel" style="margin-top: 1.5rem;">
+                    <h3 class="panel-heading"><i class="fa-solid fa-square-poll-vertical"></i> Detailed Data Quality Audit</h3>
+                    <div class="table-scroll-container">
+                        <table class="data-table" id="detailed-audit-table">
+                            <thead>
+                                <tr>
+                                    <th>Quality Issue Category</th>
+                                    <th>Before Cleaning</th>
+                                    <th>After Cleaning</th>
+                                    <th>Resolved Anomalies</th>
+                                    <th>Remaining / Flagged</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailed-audit-body">
+                                <!-- Loaded dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Phone Number Validation Panel (Research Grade) -->
+                <div class="glass-panel table-panel" id="phone-validation-summary-card" style="display: none; margin-top: 1.5rem;">
+                    <h3 class="panel-heading"><i class="fa-solid fa-phone"></i> Phone Number Identifier Validation</h3>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.4;">
+                        Identifiers like phone numbers are validated against structural standards (exactly 10 digits) but are never fabricated or imputed to protect analytical integrity.
+                    </p>
+                    <div class="table-scroll-container">
+                        <table class="data-table" id="phone-validation-table">
+                            <thead>
+                                <tr>
+                                    <th>Validation State</th>
+                                    <th>Before Cleaning</th>
+                                    <th>After Cleaning</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><b>Valid Phone Numbers (10 Digits)</b></td>
+                                    <td id="phone-valid-before">0</td>
+                                    <td id="phone-valid-after">0</td>
+                                    <td><span class="rec-badge active"><i class="fa-solid fa-circle-check"></i> Standardized</span></td>
+                                </tr>
+                                <tr>
+                                    <td><b>Invalid/Malformed (NaN)</b></td>
+                                    <td id="phone-invalid-before">0</td>
+                                    <td id="phone-invalid-after">0</td>
+                                    <td><span class="rec-badge outliers" id="phone-validation-status-badge">NaN Retained</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Column-by-Column Validation & Standardization Details -->
+                <div class="glass-panel table-panel" id="column-validation-report-card" style="margin-top: 1.5rem;">
+                    <h3 class="panel-heading"><i class="fa-solid fa-list-check"></i> Column Validation & Standardization Details</h3>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem; line-height:1.4;">
+                        Summary of data validation, standardization, and unresolved issues for each column.
+                    </p>
+                    <div class="table-scroll-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Column Name</th>
+                                    <th>Semantic Type</th>
+                                    <th>Valid</th>
+                                    <th>Invalid</th>
+                                    <th>Standardized</th>
+                                    <th>Unresolved</th>
+                                </tr>
+                            </thead>
+                            <tbody id="column-validation-body">
+                                <!-- Loaded dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Export CTA Panel -->
+                <div class="glass-panel export-hero text-center">
+                    <div class="success-badge-pulse">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <h2 class="export-title">Dataset Cleaned Successfully</h2>
+                    
+                    <!-- Quality Scores Before vs After Dashboard -->
+                    <div class="export-quality-dashboard">
+                        <div class="export-score-card">
+                            <span class="score-card-lbl">Quality Score Before</span>
+                            <span class="score-card-val text-red" id="export-score-before">0%</span>
+                        </div>
+                        <div class="export-arrow-icon">
+                            <i class="fa-solid fa-angles-right"></i>
+                        </div>
+                        <div class="export-score-card">
+                            <span class="score-card-lbl">Quality Score After</span>
+                            <span class="score-card-val text-green" id="export-score-after">0%</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Download Options -->
+                    <div class="download-section">
+                        <p class="download-section-title" style="margin-bottom:0.25rem;"><i class="fa-solid fa-file-arrow-down"></i> Download Cleaned Dataset</p>
+                        <span class="download-sub-note" style="font-size:0.75rem; color:var(--text-muted); margin-bottom: 0.75rem; display: block; max-width: 450px; margin-left: auto; margin-right: auto; line-height: 1.4;"><i class="fa-solid fa-lightbulb" style="color:var(--color-secondary);"></i> <b>Tip:</b> CSV files are plain text. Download the <b>Excel</b> format for styled headings, auto-filters, auto-fitted columns, and text-preserved phone digits.</span>
+                        <div class="export-format-btn-group">
+                            <button class="btn btn-primary format-btn" id="btn-download-csv">
+                                <i class="fa-solid fa-file-csv"></i> CSV
+                            </button>
+                            <button class="btn btn-primary format-btn" id="btn-download-xlsx">
+                                <i class="fa-solid fa-file-excel"></i> Excel
+                            </button>
+                            <button class="btn btn-primary format-btn" id="btn-download-ods">
+                                <i class="fa-solid fa-file-invoice"></i> ODS
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="download-section" style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem;">
+                        <p class="download-section-title"><i class="fa-solid fa-file-pdf"></i> Download Cleaning Report</p>
+                        <button class="btn btn-large btn-secondary" id="btn-download-report">
+                            <i class="fa-solid fa-file-pdf"></i> PDF Report
+                        </button>
+                    </div>
+
+                    <div class="download-section" style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 2rem;">
+                        <p class="download-section-title" style="color: var(--color-primary);"><i class="fa-solid fa-brain"></i> Phase 2: Predictive Modeling</p>
+                        <button class="btn btn-large btn-primary" id="btn-continue-phase2" style="background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); border: none; padding: 1rem 2.5rem; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">
+                            Continue to Phase 2 <i class="fa-solid fa-arrow-right-long" style="margin-left: 0.5rem;"></i>
+                        </button>
+                    </div>
+
+                    <div class="download-section" style="margin-top: 2rem;">
+                        <button class="btn btn-secondary" id="btn-restart" style="width: auto;">
+                            <i class="fa-solid fa-arrow-rotate-left"></i> Clean Another Dataset
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHASE 2: INTELLIGENT ML PIPELINE SCREEN -->
+            <div class="step-view" id="step-view-6">
+                <!-- Phase 2 Top Header / Progress Indicator -->
+                <div class="ml-pipeline-header glass-panel" style="margin-bottom: 1.5rem;">
+                    <div class="header-logo-ml" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                        <i class="fa-solid fa-brain" style="color: var(--color-secondary); font-size: 1.5rem;"></i>
+                        <h2 style="font-size: 1.25rem; font-weight: 600; margin: 0;">Cocoon Stage 2: Intelligent ML Pipeline</h2>
+                        <span class="rec-badge info-badge" style="margin-left: auto;">Cleaned Dataset Mode</span>
+                    </div>
+                    <div class="step-indicator-ml" style="display: flex; justify-content: space-between; align-items: center; position: relative;">
+                        <!-- 8 Sub-steps -->
+                        <div class="step-node-ml active" id="ml-step-1"><span class="ml-num">1</span><span class="ml-text">Objective</span></div>
+                        <div class="step-line-ml"></div>
+                        <div class="step-node-ml" id="ml-step-2"><span class="ml-num">2</span><span class="ml-text">Features</span></div>
+                        <div class="step-line-ml"></div>
+                        <div class="step-node-ml" id="ml-step-3"><span class="ml-num">3</span><span class="ml-text">Feature Eng</span></div>
+                        <div class="step-line-ml"></div>
+                        <div class="step-node-ml" id="ml-step-4"><span class="ml-num">4</span><span class="ml-text">Feature Sel</span></div>
+                        <div class="step-line-ml"></div>
+                        <div class="step-node-ml" id="ml-step-5"><span class="ml-num">5</span><span class="ml-text">Algorithm</span></div>
+                        <div class="step-line-ml"></div>
+                        <div class="step-node-ml" id="ml-step-6"><span class="ml-num">6</span><span class="ml-text">Training</span></div>
+                        <div class="step-line-ml"></div>
+                        <div class="step-node-ml" id="ml-step-7"><span class="ml-num">7</span><span class="ml-text">Evaluation</span></div>
+                        <div class="step-line-ml"></div>
+                        <div class="step-node-ml" id="ml-step-8"><span class="ml-num">8</span><span class="ml-text">Best Model</span></div>
+                    </div>
+                </div>
+
+                <!-- SUB-VIEW 1: DATASET UNDERSTANDING & OBJECTIVE INPUT -->
+                <div class="ml-sub-view" id="ml-sub-view-1">
+                    <div class="glass-panel" style="margin-bottom: 1.5rem;">
+                        <h3 class="panel-heading" style="color: var(--color-success); font-weight: 600;"><i class="fa-solid fa-circle-check"></i> Cleaned Dataset Verified</h3>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem;">Your cleaned and validated dataset is ready for analysis. Cocoon has inspected the features to build the pipeline.</p>
+                        
+                        <h4 style="margin-top: 1.5rem; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.95rem;">Dataset Summary</h4>
+                        <div class="meta-info-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                            <div class="meta-item">
+                                <span class="meta-label">Dataset Name</span>
+                                <span class="meta-val" id="ml-summary-name">-</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Total Rows</span>
+                                <span class="meta-val" id="ml-summary-rows">-</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Total Columns</span>
+                                <span class="meta-val" id="ml-summary-cols">-</span>
+                            </div>
+                        </div>
+
+                        <div class="ml-features-summary-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem;">
+                            <div>
+                                <h5 style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; letter-spacing: 0.5px;">Numerical columns</h5>
+                                <div id="ml-cols-numeric" style="display: flex; flex-wrap: wrap; gap: 0.35rem;">-</div>
+                            </div>
+                            <div>
+                                <h5 style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; letter-spacing: 0.5px;">Categorical columns</h5>
+                                <div id="ml-cols-categorical" style="display: flex; flex-wrap: wrap; gap: 0.35rem;">-</div>
+                            </div>
+                            <div>
+                                <h5 style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; letter-spacing: 0.5px;">Identifier columns</h5>
+                                <div id="ml-cols-identifier" style="display: flex; flex-wrap: wrap; gap: 0.35rem;">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OBJECTIVE SELECTION -->
+                    <div class="glass-panel text-center" style="padding: 3rem 2rem; max-width: 800px; margin: 0 auto;">
+                        <h2 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">What would you like to analyze or predict?</h2>
+                        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 2.5rem; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.4;">
+                            Choose a suggested objective based on your dataset, or describe your own objective in natural language.
+                        </p>
+                        
+                        <!-- SUGGESTED OBJECTIVES -->
+                        <div class="setting-group" style="max-width: 600px; margin: 0 auto 2rem auto; text-align: left;">
+                            <label style="font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; display: block;">Suggested Objectives</label>
+                            <div class="select-wrapper">
+                                <select id="ml-suggested-questions" style="padding: 1rem 1.25rem; font-size: 0.95rem;">
+                                    <option value="">-- Select a suggested question --</option>
+                                </select>
+                                <i class="fa-solid fa-chevron-down select-arrow" style="font-size: 1rem;"></i>
+                            </div>
+                        </div>
+
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 2rem; font-weight: 600; letter-spacing: 1px;">— OR —</div>
+
+                        <!-- CUSTOM OBJECTIVE -->
+                        <div class="setting-group" style="max-width: 600px; margin: 0 auto 2.5rem auto; text-align: left;">
+                            <label for="ml-custom-question" style="font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; display: block;">Describe your own objective</label>
+                            <textarea id="ml-custom-question" rows="3" placeholder="Example: Predict employee salary using the available employee information" style="width: 100%; padding: 1rem 1.25rem; border-radius: 8px; font-family: inherit; font-size: 0.95rem; line-height: 1.5; resize: vertical; outline: none; transition: border 0.3s;"></textarea>
+                        </div>
+
+                        <button class="btn btn-primary btn-large" id="btn-analyze-objective" style="width: auto; padding: 1rem 3rem; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);">
+                            Analyze My Objective <i class="fa-solid fa-arrow-right-long" style="margin-left: 0.5rem;"></i>
+                        </button>
+                        <div id="ml-objective-error" role="alert" style="display:none; max-width:700px; margin:1.25rem auto 0; padding:0.9rem 1rem; border-radius:8px; border:1px solid rgba(239,68,68,0.35); background:rgba(239,68,68,0.08); color:var(--color-danger); text-align:left;"></div>
+                    </div>
+                </div>
+
+                <!-- SUB-VIEW 2: OBJECTIVE UNDERSTANDING & COLUMN CONFIRMATION -->
+                <div class="ml-sub-view" id="ml-sub-view-2" style="display: none;">
+                    <div class="glass-panel" style="margin-bottom: 1.5rem;">
+                        <h3 class="panel-heading"><i class="fa-solid fa-brain"></i> Cocoon's Objective Analysis</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+                            <div class="meta-item">
+                                <span class="meta-label">Interpreted Intent</span>
+                                <span class="meta-val" id="ml-intent-summary">-</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Target Column (y)</span>
+                                <span class="meta-val" id="ml-intent-target" style="color: var(--color-secondary); font-weight: 600;">-</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Detected Problem Type</span>
+                                <span class="meta-val" id="ml-intent-problem" style="color: var(--color-success); font-weight: 600;">-</span>
+                            </div>
+                        </div>
+                        <div id="ml-problem-explanation" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1rem; background: rgba(255,255,255,0.02); padding: 0.75rem 1rem; border-radius: 6px; border-left: 3px solid var(--color-success);">
+                            -
+                        </div>
+                    </div>
+
+                    <!-- COLUMN SELECTION PANEL -->
+                    <div class="glass-panel">
+                        <h3 class="panel-heading"><i class="fa-solid fa-list-check"></i> Review Selected Features</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem; margin-bottom: 1.5rem;">
+                            Confirm the columns Cocoon has pre-selected. High-cardinality identifiers, email, and phone numbers are excluded by default to protect target metrics and prevent data leakage.
+                        </p>
+
+                        <!-- Feature Selection Mode selector -->
+                        <div style="display: flex; gap: 1.5rem; margin-bottom: 1.5rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 0.75rem 1rem; align-items: center; flex-wrap: wrap;">
+                            <div style="font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; color: var(--color-success); min-width: 200px;">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Feature Selection Mode:
+                            </div>
+                            <div style="display: flex; gap: 1rem;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.4rem 0.8rem; border-radius: 6px; background: rgba(0,0,0,0.25); border: 1px solid var(--color-primary);" id="label-selection-auto">
+                                    <input type="radio" name="feature-selection-mode" value="automatic" checked style="accent-color: var(--color-primary); cursor: pointer;" onchange="toggleFeatureSelectionMode('automatic')">
+                                    <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                                        <span style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary);">Automatic</span>
+                                        <span style="font-size: 0.7rem; color: var(--text-muted);">Cocoon selects top features statistically</span>
+                                    </div>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.4rem 0.8rem; border-radius: 6px; background: rgba(0,0,0,0.1); border: 1px solid rgba(255,255,255,0.05);" id="label-selection-manual">
+                                    <input type="radio" name="feature-selection-mode" value="manual" style="accent-color: var(--color-primary); cursor: pointer;" onchange="toggleFeatureSelectionMode('manual')">
+                                    <div style="display: flex; flex-direction: column; line-height: 1.2;">
+                                        <span style="font-weight: 600; font-size: 0.85rem; color: var(--text-primary);">Manual Override</span>
+                                        <span style="font-size: 0.7rem; color: var(--text-muted);">Configure custom columns below</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Column Selection Confirmation Layout -->
+                        <div style="display: grid; grid-template-columns: 1fr 1.5fr 1.5fr; gap: 1.5rem; margin-bottom: 2rem;">
+                            <!-- Target column dropdown -->
+                            <div class="setting-group">
+                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Target Column (y)</label>
+                                <div class="select-wrapper">
+                                    <select id="ml-target-select" style="border: 1px solid var(--color-secondary);">
+                                        <!-- Populated dynamically -->
+                                    </select>
+                                    <i class="fa-solid fa-chevron-down select-arrow"></i>
+                                </div>
+                            </div>
+                            <!-- Features checkboxes -->
+                            <div>
+                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block; color: var(--color-success);">Selected Predictor Features (X)</label>
+                                <div id="ml-features-container" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 250px; overflow-y: auto; padding: 0.5rem; background: rgba(0,0,0,0.15); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+                            <!-- Excluded columns checkboxes -->
+                            <div>
+                                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block; color: var(--text-muted);">Excluded Columns (Removed)</label>
+                                <div id="ml-excluded-container" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 250px; overflow-y: auto; padding: 0.5rem; background: rgba(0,0,0,0.15); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recommended Algorithms list -->
+                        <div id="ml-recommendations-panel" style="margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem; display: none;">
+                            <h4 style="font-weight: 600; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; color: var(--color-secondary);">
+                                <i class="fa-solid fa-layer-group"></i> Candidate Pipeline Estimators
+                            </h4>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                                These five estimators will be trained and compared. Their suitability is measured after training, from cross-validated scores - not estimated in advance.
+                            </p>
+                            <div id="ml-algo-recommendations-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 0.5rem;">
+                                <!-- Recommended 5 algorithms dynamically rendered here with stars -->
+                            </div>
+                        </div>
+
+                        <div class="btn-action-container" style="justify-content: flex-end; gap: 1rem;">
+                            <button class="btn btn-secondary" id="btn-ml-back-1" style="width: auto;"><i class="fa-solid fa-arrow-left"></i> Change Objective</button>
+                            <button class="btn btn-primary" id="btn-ml-continue-2" style="width: auto; padding: 0.75rem 2rem;">
+                                Accept Selection &amp; Train Pipeline <i class="fa-solid fa-cogs" style="margin-left: 0.5rem;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-VIEW 3: RUNNING PIPELINE & TRAINING SCREEN -->
+                <div class="ml-sub-view" id="ml-sub-view-3" style="display: none;">
+                    <div class="glass-panel text-center" id="ml-pipeline-running" style="padding: 3rem 1.5rem;">
+                        <div class="spinner-container" style="margin-bottom: 1.5rem;">
+                            <div class="double-bounce1" style="background-color: var(--color-secondary);"></div>
+                            <div class="double-bounce2" style="background-color: var(--color-primary);"></div>
+                        </div>
+                        <h2 style="font-size: 1.5rem; font-weight: 600;">Executing Intelligent ML Pipeline...</h2>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 500px; margin: 0.5rem auto 2.5rem auto; line-height: 1.4;">
+                            Cocoon is engineering features, computing statistical feature importance, training candidate estimators, and evaluating validation metrics.
+                        </p>
+
+                        <!-- Pipeline checklist -->
+                        <div style="max-width: 400px; margin: 0 auto; text-align: left; background: rgba(0,0,0,0.15); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 0.75rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem;" id="check-ml-1">
+                                <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--color-secondary);"></i> Preparing dataset
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; opacity: 0.5;" id="check-ml-2">
+                                <i class="fa-regular fa-circle"></i> Feature engineering (impute + scale + encode)
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; opacity: 0.5;" id="check-ml-3">
+                                <i class="fa-regular fa-circle"></i> Feature selection
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; opacity: 0.5;" id="check-ml-4">
+                                <i class="fa-regular fa-circle"></i> Training candidate models
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; opacity: 0.5;" id="check-ml-5">
+                                <i class="fa-regular fa-circle"></i> Evaluating models on test set
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; opacity: 0.5;" id="check-ml-6">
+                                <i class="fa-regular fa-circle"></i> Selecting best model
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-VIEW 4: RESULTS REPORT & COMPARISONS -->
+                <div class="ml-sub-view" id="ml-sub-view-4" style="display: none;">
+                    
+                    <!-- BEST MODEL CARD (TOP HERO CARD) -->
+                    <div class="glass-panel" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(236, 72, 153, 0.05) 100%); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 12px; padding: 2rem; position: relative; overflow: hidden; margin-bottom: 1.5rem;">
+                        <div style="position: absolute; right: 2rem; top: 1.5rem; opacity: 0.08; font-size: 8rem; color: #fff; pointer-events: none;">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <h4 style="text-transform: uppercase; letter-spacing: 1px; color: var(--color-secondary); font-weight: 700; font-size: 0.85rem; margin-bottom: 0.25rem;">
+                            🏆 Best Recommended Model
+                        </h4>
+                        <h2 id="ml-best-model-title" style="font-size: 2.25rem; font-weight: 800; margin-bottom: 0.5rem; background: linear-gradient(135deg, #fff, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            Random Forest Regressor
+                        </h2>
+                        
+                        <div id="ml-best-metrics-grid" style="display: flex; gap: 2rem; flex-wrap: wrap; margin: 1.5rem 0; border-top: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08); padding: 1rem 0;">
+                            <!-- Populated dynamically -->
+                        </div>
+                        
+                        <h4 style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.35rem;"><i class="fa-solid fa-lightbulb"></i> Why Cocoon Recommended This Model:</h4>
+                        <p id="ml-best-reason-text" style="font-size: 0.9rem; line-height: 1.5; color: #e2e8f0;">
+                            -
+                        </p>
+                    </div>
+
+                    <!-- Pipeline Detail summaries (Feature Engineering / Selection) - Single Column Stacked -->
+                    <div class="ml-pipeline-details-container" style="display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 1.5rem; width: 100%;">
+                        <!-- Feature Engineering Applied -->
+                        <div class="glass-panel">
+                            <h3 class="panel-heading"><i class="fa-solid fa-wand-magic-sparkles"></i> Preprocessing &amp; Feature Engineering</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Statistically fitted pipeline actions applied to the split data partitions:</p>
+                            <ul id="ml-transforms-list" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem; padding-left: 1.25rem; margin-bottom: 1.25rem; color: #e2e8f0;">
+                                <!-- Dynamically populated -->
+                            </ul>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); background: rgba(0,0,0,0.15); padding: 0.5rem 0.75rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.02);">
+                                <b>Output Shape:</b> <span id="ml-engineered-cols-count">0</span> engineered feature columns.
+                            </div>
+                        </div>
+
+                        <!-- Feature Selection Significance -->
+                        <div class="glass-panel">
+                            <div class="panel-header-actions" style="margin-bottom: 0.5rem;">
+                                <h3 class="panel-heading" style="margin-bottom: 0;"><i class="fa-solid fa-chart-bar"></i> Feature Selection Stage</h3>
+                                <span class="rec-badge" id="ml-selection-method-badge" style="background: rgba(59,130,246,0.1); color: #60a5fa; border: 1px solid rgba(59,130,246,0.2);">Method</span>
+                            </div>
+                            <div id="ml-selection-method-info-box" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem; background: rgba(0,0,0,0.15); padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); display: flex; flex-direction: column; gap: 0.35rem;">
+                                <div><b>Feature Selection Method Used:</b> <span id="ml-selection-method-text" style="color: var(--color-secondary);">-</span></div>
+                                <div style="display:none;">
+                                    <span id="ml-selection-selected-text">-</span>
+                                    <span id="ml-selection-removed-text">-</span>
+                                </div>
+                                <div style="font-size: 0.78rem; color: var(--text-muted); font-style: italic;" id="ml-selection-criterion-text"></div>
+                            </div>
+
+                            <!-- 3 SEPARATE GROUPS: Selected, Removed, Excluded by Policy / Identifier (Equal Size & Equal Height) -->
+                            <div class="ml-feature-categories-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); align-items: stretch; gap: 1rem; margin-bottom: 1.25rem;">
+                                <!-- Group 1: Selected Features -->
+                                <div class="ml-feature-category-box ml-cat-box-selected" style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 0.85rem 1rem; display: flex; flex-direction: column; height: 100%;">
+                                    <div style="font-weight: 700; font-size: 0.85rem; color: var(--color-success); margin-bottom: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
+                                        <span><i class="fa-solid fa-circle-check"></i> Selected Features</span>
+                                        <span id="ml-selected-count-badge" style="font-size: 0.7rem; background: rgba(16, 185, 129, 0.2); padding: 0.1rem 0.4rem; border-radius: 4px;">0</span>
+                                    </div>
+                                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.6rem;">Features actually selected for model training.</div>
+                                    <div id="ml-selected-group-items" style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.85rem; font-family: var(--font-mono); flex: 1 1 auto;">
+                                        <!-- Populated: ✓ Feature_Name -->
+                                    </div>
+                                </div>
+
+                                <!-- Group 2: Removed Features -->
+                                <div class="ml-feature-category-box ml-cat-box-removed" style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 0.85rem 1rem; display: flex; flex-direction: column; height: 100%;">
+                                    <div style="font-weight: 700; font-size: 0.85rem; color: var(--color-danger); margin-bottom: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
+                                        <span><i class="fa-solid fa-circle-xmark"></i> Removed Features</span>
+                                        <span id="ml-removed-count-badge" style="font-size: 0.7rem; background: rgba(239, 68, 68, 0.2); padding: 0.1rem 0.4rem; border-radius: 4px;">0</span>
+                                    </div>
+                                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.6rem;">Evaluated by Feature Selection but rejected due to low relevance.</div>
+                                    <div id="ml-removed-group-items" style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.85rem; font-family: var(--font-mono); flex: 1 1 auto;">
+                                        <!-- Populated: ✗ Feature_Name -->
+                                    </div>
+                                </div>
+
+                                <!-- Group 3: Excluded by Policy / Identifier -->
+                                <div class="ml-feature-category-box ml-cat-box-excluded" style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px; padding: 0.85rem 1rem; display: flex; flex-direction: column; height: 100%;">
+                                    <div style="font-weight: 700; font-size: 0.85rem; color: var(--color-warning); margin-bottom: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
+                                        <span><i class="fa-solid fa-ban"></i> Excluded by Policy / Identifier</span>
+                                        <span id="ml-excluded-count-badge" style="font-size: 0.7rem; background: rgba(245, 158, 11, 0.2); padding: 0.1rem 0.4rem; border-radius: 4px;">0</span>
+                                    </div>
+                                    <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.6rem;">Features intentionally excluded before Feature Selection entirely, not scored.</div>
+                                    <div id="ml-excluded-group-items" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem; flex: 1 1 auto;">
+                                        <!-- Populated: ⊘ Feature_Name \n Reason: ... -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Validation check notification box -->
+                            <div id="ml-feature-validation-box" style="display:flex; align-items:center; gap:0.5rem; font-size:0.78rem; color:var(--color-success); background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.2); border-radius:6px; padding:0.45rem 0.85rem; margin-bottom:1rem;">
+                                <i class="fa-solid fa-shield-check"></i>
+                                <span id="ml-feature-validation-msg">Feature Accounting Verified</span>
+                            </div>
+
+                            <div id="ml-excluded-policy-box" style="display:none;">
+                                <ul id="ml-excluded-policy-list"></ul>
+                            </div>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">Normalized importance score (0.0 to 1.0) computed on the training split:</p>
+                            <div id="ml-leakage-warnings" class="ml-leakage-warnings" style="display:none;"></div>
+                            <div id="ml-feature-importance-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                <!-- Dynamic bar chart lists -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ALGORITHM COMPARISON TABLE -->
+                    <div class="glass-panel table-panel" style="margin-bottom: 1.5rem;">
+                        <h3 class="panel-heading"><i class="fa-solid fa-scale-balanced"></i> Dynamic Algorithm Performance Comparison</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.15rem; margin-bottom: 1rem;">
+                            Model scores computed on the isolated testing split (20% partition). Arrows indicate direction optimization targets (<b>↑</b> indicates higher is better, <b>↓</b> indicates lower error is better).
+                        </p>
+                        <div class="table-scroll-container">
+                            <table class="data-table" id="ml-comparison-table">
+                                <thead>
+                                    <!-- Populated dynamically based on problem type -->
+                                </thead>
+                                <tbody id="ml-comparison-tbody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- MODEL PERFORMANCE COMPARISON CHART -->
+                    <div class="glass-panel" style="margin-bottom: 1.5rem;">
+                        <h3 class="panel-heading"><i class="fa-solid fa-chart-column"></i> Model Performance Visualizer</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.25rem;" id="ml-chart-description">
+                            Visualizing evaluation metric values across trained candidate algorithms.
+                        </p>
+                        <div id="ml-model-comparison-chart" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <!-- Dynamic bar chart list for candidate models -->
+                        </div>
+                        <div id="ml-result-notices" class="ml-result-notices" style="display:none;"></div>
+                    </div>
+
+                    <!-- CONFUSION MATRIX (For classification only) -->
+                    <div class="glass-panel" id="ml-confusion-matrix-card" style="display: none; margin-bottom: 1.5rem;">
+                        <h3 class="panel-heading"><i class="fa-solid fa-th-large"></i> Confusion Matrix (Best Model)</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                            Detailed breakdowns of true positives, true negatives, false positives, and false negatives.
+                        </p>
+                        <div class="confusion-matrix-layout" style="display: flex; justify-content: center; align-items: center; gap: 2rem; margin: 1rem 0;">
+                            <div class="matrix-grid-ui" style="display: grid; grid-template-columns: auto 80px 80px; grid-template-rows: auto 80px 80px; gap: 6px; text-align: center; align-items: center; font-weight: 600;">
+                                <!-- Labels -->
+                                <div></div>
+                                <div style="font-size: 0.8rem; color: var(--color-secondary);">Predicted <span id="cm-positive-label">positive</span></div>
+                                <div style="font-size: 0.8rem; color: var(--color-secondary);">Predicted <span id="cm-negative-label">negative</span></div>
+                                
+                                <div style="font-size: 0.8rem; color: var(--color-success); text-align: right; padding-right: 8px;">Actual Pos</div>
+                                <div id="cm-tp" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--color-success); border-radius: 4px; display: flex; flex-direction: column; justify-content: center; height: 100%;"><span class="cm-val" style="font-size: 1.5rem;">0</span><small style="font-size:0.65rem; opacity:0.7;">TP</small></div>
+                                <div id="cm-fn" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #f87171; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; height: 100%;"><span class="cm-val" style="font-size: 1.5rem;">0</span><small style="font-size:0.65rem; opacity:0.7;">FN</small></div>
+                                
+                                <div style="font-size: 0.8rem; color: var(--color-success); text-align: right; padding-right: 8px;">Actual Neg</div>
+                                <div id="cm-fp" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #f87171; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; height: 100%;"><span class="cm-val" style="font-size: 1.5rem;">0</span><small style="font-size:0.65rem; opacity:0.7;">FP</small></div>
+                                <div id="cm-tn" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--color-success); border-radius: 4px; display: flex; flex-direction: column; justify-content: center; height: 100%;"><span class="cm-val" style="font-size: 1.5rem;">0</span><small style="font-size:0.65rem; opacity:0.7;">TN</small></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COCOON ANALYSIS SUMMARY -->
+                    <div class="glass-panel" style="margin-bottom: 2rem;">
+                        <h3 class="panel-heading"><i class="fa-solid fa-rectangle-list"></i> Cocoon Final Analysis Summary</h3>
+                        <div class="summary-code-report" style="margin-top: 1rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 8px; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #a5b4fc; display: flex; flex-direction: column; gap: 0.85rem;">
+                            <!-- Metadata Grid -->
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.75rem 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.85rem;">
+                                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                    <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">Dataset:</span>
+                                    <span id="summary-report-dataset" style="color: #fff; word-break: normal; overflow-wrap: break-word;">-</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                    <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">User Objective:</span>
+                                    <span id="summary-report-objective" style="color: #fff; word-break: normal; overflow-wrap: break-word;">-</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                    <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">Problem Type:</span>
+                                    <span id="summary-report-problem" style="color: #fff; word-break: normal; overflow-wrap: break-word;">-</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                    <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">Target Column:</span>
+                                    <span id="summary-report-target" style="color: var(--color-secondary); font-weight: bold; word-break: normal; overflow-wrap: break-word;">-</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                    <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">Models Evaluated:</span>
+                                    <span id="summary-report-models" style="color: #fff; word-break: normal; overflow-wrap: break-word;">-</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 0.2rem;">
+                                    <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">Best Model:</span>
+                                    <span id="summary-report-best" style="color: var(--color-success); font-weight: bold; word-break: normal; overflow-wrap: break-word;">-</span>
+                                </div>
+                            </div>
+
+                            <!-- Feature Groups in Summary -->
+                            <div style="display: flex; flex-direction: column; gap: 0.35rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.75rem;">
+                                <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">Selected Features:</span>
+                                <div id="summary-report-features" style="color: var(--color-success); font-weight: 600; word-break: normal; overflow-wrap: break-word; line-height: 1.5;">-</div>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 0.35rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.75rem;">
+                                <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">Removed Features:</span>
+                                <div id="summary-report-removed" style="color: var(--color-danger); word-break: normal; overflow-wrap: break-word; line-height: 1.5;">-</div>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 0.35rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.75rem;">
+                                <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">Excluded by Policy / ID:</span>
+                                <div id="summary-report-excluded" style="color: var(--color-warning); display: flex; flex-direction: column; gap: 0.3rem; word-break: normal; overflow-wrap: break-word; line-height: 1.5;">-</div>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 0.35rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.75rem;">
+                                <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">Feature Traceability:</span>
+                                <div id="summary-report-validation" style="color: var(--color-success); font-size: 0.8rem; word-break: normal; overflow-wrap: break-word; line-height: 1.5;">-</div>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 0.35rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.75rem;">
+                                <span style="color: var(--text-muted); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;">Selection Basis:</span>
+                                <div id="summary-report-basis" style="color: #fff; line-height: 1.5; word-break: normal; overflow-wrap: break-word;">-</div>
+                            </div>
+
+                            <!-- Recommendation Block with label on top and text below -->
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem; padding-top: 0.25rem;">
+                                <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Recommendation:</span>
+                                <div id="summary-report-recommendation" style="color: #ffffff; line-height: 1.6; word-break: normal; overflow-wrap: break-word; white-space: normal; background: rgba(0,0,0,0.25); padding: 0.75rem 1rem; border-radius: 6px; border-left: 3px solid var(--color-success);">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FOOTER ACTIONS -->
+                    <div class="btn-action-container" style="gap: 1rem;">
+                        <button class="btn btn-secondary" id="btn-ml-back-to-validation" style="width: auto;">
+                            <i class="fa-solid fa-arrow-left"></i> Return to Phase 1 Validation
+                        </button>
+                        <button class="btn btn-primary" id="btn-ml-reset" style="width: auto; background: var(--color-success); border-color: var(--color-success);">
+                            <i class="fa-solid fa-arrow-rotate-left"></i> Analyze New Objective
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <p>M.Sc. Project | LLM-Guided Automated Data Preprocessing and Intelligent ML Recommendation Framework</p>
+    </footer>
+
+    <script src="app.js?v=1.3"></script>
+</body>
+</html>
